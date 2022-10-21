@@ -13,6 +13,7 @@
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
         "moduleResolution": "Node",
-        "esModuleInterop": true
+        "esModuleInterop": true,
+        "strictNullChecks": true
     }
 }
