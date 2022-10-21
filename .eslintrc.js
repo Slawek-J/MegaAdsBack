@@ -12,6 +12,7 @@ module.exports = {
   parserOptions: {
     ecmaVersion: "latest",
     sourceType: "module",
+    project: ["./back/tsconfig.json"],
   },
   plugins: ["prettier"],
   rules: {
@@ -27,6 +28,11 @@ module.exports = {
     ],
     semi: ["error", "always"],
     quotes: ["error", "double"],
-    "prettier/prettier": "error",
+    "prettier/prettier": [
+      "error",
+      {
+        endOfLine: "auto",
+      },
+    ],
   },
 };
