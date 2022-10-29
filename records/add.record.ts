@@ -1,9 +1,9 @@
-import { AddEntity } from "../types";
+import { FieldPacket } from "mysql2";
+import { AddEntity, NewAddEntity } from "../types";
+import { pool } from "../utils/db";
 import { ValidationError } from "../utils/errors";
 
-interface NewAddEntity extends Omit<AddEntity, "id"> {
-  id?: string;
-}
+type AddRecordResult = [AddEntity[], FieldPacket[]];
 
 export class AddRecord implements AddEntity {
   public id: string;
@@ -14,7 +14,7 @@ export class AddRecord implements AddEntity {
   public lat: number;
   public lon: number;
 
-  constructor(obj: AddEntity) {
+  constructor(obj: NewAddEntity) {
     if (obj.name === "" || obj.name.length > 100) {
       throw new ValidationError(
         "Ad's name cannot be empty or have more than 100 characters."
@@ -43,11 +43,26 @@ export class AddRecord implements AddEntity {
       throw new ValidationError("Add cannot be localized.");
     }
 
+    if (obj.id != null) {
+      this.id = obj.id;
+    }
+
     this.name = obj.name;
     this.description = obj.description;
     this.lat = obj.lat;
     this.lon = obj.lon;
     this.price = obj.price;
     this.url = obj.url;
+  }
+
+  static async getOne(id: string): Promise<AddRecord | null> {
+    const [results] = (await pool.execute(
+      "SELECT * FROM `ads` WHERE id = :id",
+      {
+        id,
+      }
+    )) as AddRecordResult;
+
+    return results.length === 0 ? null : new AddRecord(results[0]);
   }
 }
