@@ -1,5 +1,5 @@
 import { FieldPacket } from "mysql2";
-import { AddEntity, NewAddEntity } from "../types";
+import { AddEntity, NewAddEntity, SimpleAddEntity } from "../types";
 import { pool } from "../utils/db";
 import { ValidationError } from "../utils/errors";
 
@@ -64,5 +64,16 @@ export class AddRecord implements AddEntity {
     )) as AddRecordResult;
 
     return results.length === 0 ? null : new AddRecord(results[0]);
+  }
+
+  static async getAll(name: string): Promise<SimpleAddEntity[]> {
+    const [results] = (await pool.execute(
+      "SELECT * FROM `ads` WHERE `name` LIKE :search",
+      { search: `%${name}%` }
+    )) as AddRecordResult;
+    return results.map((result) => {
+      const { id, lat, lon } = result;
+      return { id, lat, lon };
+    });
   }
 }
