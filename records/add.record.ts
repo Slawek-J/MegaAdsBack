@@ -2,6 +2,7 @@ import { FieldPacket } from "mysql2";
 import { AddEntity, NewAddEntity, SimpleAddEntity } from "../types";
 import { pool } from "../utils/db";
 import { ValidationError } from "../utils/errors";
+import { v4 as uuid } from "uuid";
 
 type AddRecordResult = [AddEntity[], FieldPacket[]];
 
@@ -75,5 +76,19 @@ export class AddRecord implements AddEntity {
       const { id, lat, lon } = result;
       return { id, lat, lon };
     });
+  }
+
+  async insert(): Promise<void> {
+    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+    if (!this.id) {
+      this.id = uuid();
+    } else {
+      throw new Error("Record is already inserted in database");
+    }
+
+    await pool.execute(
+      "INSERT INTO `ads`(`id`, `name`, `description`, `price`, `url`, `lat`, `lon`) VALUEs(:id, :name, :description, :price, :url, :lat, :lon)",
+      this
+    );
   }
 }
